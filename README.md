@@ -21,13 +21,52 @@ LEAD AGENT (agent_prompt.md)
 ```
 The CV is read only by the lead agent. It is never sent to subagents or put in search queries.
 
-## Setup
-1. Copy `cv.example.md` to `cv.md` and replace it with your own CV. `cv.md` is git-ignored.
-2. Put your target job description in `job_description.txt`.
-3. Ask Claude to run the extractor (`extractor_prompt.md`) on both files. This creates `profiles/` and `keywords.md`.
-4. In Claude (desktop app), connect the Gmail connector and create a scheduled task that runs the lead agent (`agent_prompt.md`) on your chosen schedule, e.g. 08:00 Sunday–Thursday.
+## Prerequisites
+| What | Why |
+|---|---|
+| **Claude desktop app** (Windows or macOS) with the **Code** tab (Claude Code), on a paid Claude plan | Runs the agents, the parallel subagents, and the daily **scheduled task** |
+| **Gmail connector** (Google account) connected in Claude | Sends the daily email (`send_message`) |
+| **Web search + web fetch** allowed in Claude Code | The board subagents search the job boards and open postings |
+| **Git** (optional) | To clone this repo |
+| A computer that's **on, with the Claude app open**, at the scheduled time | Scheduled tasks run locally; a missed run happens the next time the app starts |
 
-Scheduled tasks run only while the Claude desktop app is open. A run that was missed happens the next time the app starts.
+No API keys, Python or other installs are needed. Claude is the LLM, and everything else is markdown instructions.
+
+## First-time setup
+1. **Get the project**
+   ```bash
+   git clone https://github.com/noaoren95/job_seeker.git
+   ```
+   Or download it as a ZIP from GitHub and unzip it.
+
+2. **Open it in Claude.** In the Claude desktop app, go to the **Code** tab, start a new session, and pick the `job_seeker` folder as the working folder.
+
+3. **Connect Gmail.** In the Claude app, open **Settings → Connectors**, add **Gmail**, and sign in with the Google account that should receive the emails. Make sure the connector is turned on for your Code sessions.
+
+4. **Add your CV.** Copy `cv.example.md` to a new file named `cv.md` in the same folder, then replace its content with your own CV (Markdown or plain text; keep the same sections where you can). `cv.md` is git-ignored, so it is never committed.
+
+5. **Add your target job.** Paste a job description that describes the role you want into `job_description.txt`, replacing the example.
+
+6. **Extract your keywords.** In the Claude session, send:
+   > Follow extractor_prompt.md: extract a profile from job_description.txt and from cv.md, then merge them into keywords.md.
+
+   This creates `profiles/jd_profile.md`, `profiles/cv_profile.md` and a fresh `keywords.md`.
+
+7. **Review `keywords.md`.** Remove terms you don't want (or disable them with `~`), add your own under `## My additions`, and set the **Filters**: location, seniority, `Max job age (days)`, and `Unknown posting date`.
+
+8. **Do a test run.** In the Claude session, send:
+   > Run the lead agent in agent_prompt.md once now and email the results to me.
+
+   Approve the web and Gmail permission prompts when they appear. You should get an email within about 10–15 minutes. Check the results, then tune `keywords.md` or the rules in `agent_prompt.md` if needed.
+
+9. **Schedule it.** In the Claude session, send (replace the two `<…>` values):
+   > Create a scheduled task named daily-job-seeker that runs at 08:00 Sunday–Thursday. Each run: act as the lead agent in `<full path to job_seeker>\agent_prompt.md`, follow it exactly, and send the email with the Gmail connector to `<your email>`.
+
+   You can also create or edit it later from **Scheduled** in the app's sidebar.
+
+10. **Avoid permission pop-ups (optional).** A scheduled run happens while you're away. If it stops to ask for permission, it waits until you approve. Either save the task in **Auto** permission mode, or allow `WebSearch`, `WebFetch` and the Gmail connector in this project's Claude Code permissions.
+
+`seen_jobs.json`, `rejected_log.md` and `runs/` are created automatically on the first run, and git ignores them.
 
 ## Files
 | File | What it is | In git? |
