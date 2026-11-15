@@ -1,0 +1,20 @@
+# --- Personal data: never commit ---
+# Your real CV (use cv.example.md as the public template)
+cv.md
+*_CV_*.md
+*_cv_*.md
+# Keyword profile extracted from your CV
+profiles/cv_profile.md
+# Job-search history and run outputs (contain CV evidence and applications)
+runs/
+seen_jobs.json
+rejected_log.md
+
+# --- Local tool settings ---
+.claude/settings.local.json
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp

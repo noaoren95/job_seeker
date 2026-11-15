@@ -1,0 +1,18 @@
+AI Solutions Engineer
+
+As an AI Solutions Engineer, you'll have the opportunity to understand business needs and challenges, design and build intelligent AI agents, and lead AI-powered solutions from requirements gathering through full implementation in a production environment.
+
+What You'll Do
+- Work directly with customers to map processes, understand business needs, and translate them into technological solutions.
+- Design architectures and build intelligent AI agents.
+- Develop integrations with APIs, databases, and enterprise systems.
+- Test, optimize, and improve solution performance.
+- Lead end-to-end implementation processes, ensuring successful deployment to production.
+
+What We're Looking For
+- A bachelor's degree in Industrial Engineering and Management / Software Engineering / Computer Science / another relevant technology-related field.
+- Up to one year of professional experience in project management, software development, or analyst roles.
+- Knowledge of and experience with AI technologies.
+- Strong systems thinking, analytical skills, and the ability to solve complex problems.
+- Excellent interpersonal skills, business acumen, and the ability to communicate and work directly with customers.
+- A proactive and independent mindset, with the ability to take solutions from concept to implementation.
