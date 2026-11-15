@@ -1,29 +1,44 @@
 <!--
-  Reference template for the daily email. Inline CSS only (Gmail strips <style>).
-  Repeat the JOB CARD block once per recommended job, best score first.
-  Score badge colour: #2f855a for score >= 8, #3c6e9f for 7–7.9.
-  {{PLACEHOLDERS}} are filled in by the lead agent.
+  SAMPLE daily email (fictional jobs and companies). The lead agent copies this exact layout:
+  header -> one card per recommended job (best score first) -> footer.
+  Score badge: green #2f855a for 8+, blue #3c6e9f for 7-7.9. Inline CSS only (Gmail strips <style>).
 -->
 <div style="font-family:Arial,Helvetica,sans-serif;max-width:680px;margin:0 auto;color:#1f2933;font-size:14px;line-height:1.45">
 <div style="background:#1e3a5f;color:#ffffff;padding:18px 20px;border-radius:8px 8px 0 0">
-<div style="font-size:20px;font-weight:bold">Daily job matches · {{DATE}}</div>
-<div style="font-size:13px;opacity:.85;margin-top:4px">{{N}} new matches · jobs from the last {{MAX_AGE_DAYS}} days · {{CHECKED}} postings checked across {{BOARDS}} · {{REJECTED}} rejected by CV gate</div>
+<div style="font-size:20px;font-weight:bold">Daily job matches · 17 Nov 2026</div>
+<div style="font-size:13px;opacity:.85;margin-top:4px">3 new matches · jobs from the last 7 days · 41 postings checked across LinkedIn, AllJobs, Drushim, JobMaster, career pages · 24 rejected by CV gate</div>
 </div>
 <div style="background:#f4f6f8;padding:10px 20px;font-size:12px;color:#52606d;border-bottom:1px solid #e4e7eb">Every job below passed the CV-fit gate: each must-have requirement is backed by a line in your CV. Sorted by score.</div>
 
-<!-- JOB CARD (repeat) -->
 <div style="padding:16px 20px;border-bottom:1px solid #e4e7eb">
-<div><span style="background:#2f855a;color:#fff;font-weight:bold;padding:2px 8px;border-radius:10px;font-size:12px">{{SCORE}}</span> <a href="{{POSTING_URL}}" style="font-size:16px;font-weight:bold;color:#1e3a5f;text-decoration:none">{{TITLE}}</a></div>
-<div style="color:#52606d;font-size:13px;margin:3px 0 8px">{{COMPANY}} · {{LOCATION}} · {{SOURCE}} · posted {{POSTED_RELATIVE}} ({{POSTED_DATE}})</div>
-<div><b>CV evidence:</b> {{CV_EVIDENCE_1}} · {{CV_EVIDENCE_2}} · {{CV_EVIDENCE_3}}</div>
-<div style="margin-top:4px"><b>Matched:</b> {{MATCHED_KEYWORDS}}</div>
-<div style="margin-top:4px;color:#9c4221"><b>Gaps:</b> {{GAPS_OR_NOTE}}</div>
-<div style="margin-top:10px"><a href="{{APPLY_URL}}" style="display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px">Apply on {{APPLY_VIA}} &rarr;</a><span style="font-size:11px;color:#7b8794;margin-left:8px">(log in to the board to send your CV)</span></div>
+<div><span style="background:#2f855a;color:#fff;font-weight:bold;padding:2px 8px;border-radius:10px;font-size:12px">9.0</span> <a href="https://example.com/jobs/ai-solutions-engineer" style="font-size:16px;font-weight:bold;color:#1e3a5f;text-decoration:none">AI Solutions Engineer</a></div>
+<div style="color:#52606d;font-size:13px;margin:3px 0 8px">Acme AI · Tel Aviv (hybrid) · Career pages · posted 1 day ago (16 Nov)</div>
+<div><b>CV evidence:</b> built LLM workflows and n8n automations in production · REST API integrations · technical contact between Support, Product and R&amp;D</div>
+<div style="margin-top:4px"><b>Matched:</b> AI agents, API integrations, customer-facing, end-to-end implementation, n8n</div>
+<div style="margin-top:4px;color:#9c4221"><b>Gaps:</b> RAG experience is a nice-to-have, not in the CV</div>
+<div style="margin-top:10px"><a href="https://example.com/jobs/ai-solutions-engineer/apply" style="display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px">Apply on Greenhouse &rarr;</a></div>
 </div>
-<!-- /JOB CARD -->
+
+<div style="padding:16px 20px;border-bottom:1px solid #e4e7eb">
+<div><span style="background:#2f855a;color:#fff;font-weight:bold;padding:2px 8px;border-radius:10px;font-size:12px">8.0</span> <a href="https://example.com/jobs/ai-implementer" style="font-size:16px;font-weight:bold;color:#1e3a5f;text-decoration:none">מיישם/ת AI ואוטומציה</a></div>
+<div style="color:#52606d;font-size:13px;margin:3px 0 8px">Example Insurance · Ramat Gan · Drushim · posted 3 days ago (14 Nov)</div>
+<div><b>CV evidence:</b> AI-assisted workflows replacing manual tasks · SQL and Python · turned customer requests into feature specs</div>
+<div style="margin-top:4px"><b>Matched:</b> automation, LLM, process improvement, operations</div>
+<div style="margin-top:4px;color:#9c4221"><b>Gaps:</b> Microsoft Copilot Studio (nice-to-have)</div>
+<div style="margin-top:10px"><a href="https://example.com/jobs/ai-implementer" style="display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px">Apply on Drushim &rarr;</a><span style="font-size:11px;color:#7b8794;margin-left:8px">(log in to the board to send your CV)</span></div>
+</div>
+
+<div style="padding:16px 20px;border-bottom:1px solid #e4e7eb">
+<div><span style="background:#3c6e9f;color:#fff;font-weight:bold;padding:2px 8px;border-radius:10px;font-size:12px">7.5</span> <a href="https://example.com/jobs/ai-automation-specialist" style="font-size:16px;font-weight:bold;color:#1e3a5f;text-decoration:none">AI Automation Specialist</a></div>
+<div style="color:#52606d;font-size:13px;margin:3px 0 8px">Sample Logistics · Petah Tikva · AllJobs · posted 5 days ago (12 Nov)</div>
+<div><b>CV evidence:</b> n8n automations · MCP integrations · prompt engineering with Claude and GPT</div>
+<div style="margin-top:4px"><b>Matched:</b> automation, prompt engineering, MCP, workflow automation</div>
+<div style="margin-top:4px;color:#9c4221"><b>Note:</b> internal role, less customer-facing than the target</div>
+<div style="margin-top:10px"><a href="https://example.com/jobs/ai-automation-specialist" style="display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px">Apply on AllJobs &rarr;</a><span style="font-size:11px;color:#7b8794;margin-left:8px">(log in to the board to send your CV)</span></div>
+</div>
 
 <div style="padding:14px 20px;background:#f4f6f8;font-size:12px;color:#52606d;border-radius:0 0 8px 8px">
-<b>Top rejection reasons today:</b> {{TOP_REJECTION_REASONS}}. Full list: rejected_log.md.<br>
+<b>Top rejection reasons today:</b> X years as a software engineer (9) · ERP / CRM experience (5) · posted more than 7 days ago (4). Full list: rejected_log.md.<br>
 To change the search, edit keywords.md in the job_seeker folder (prefix a term with ~ to turn it off).
 </div>
 </div>
