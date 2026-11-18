@@ -11,7 +11,7 @@ Only return postings published within the last `max_age_days` days before `date`
 - Older than `max_age_days` → skip it (don't fetch further).
 - No date can be found → keep it only if `unknown_date` is `include`, with `"posted": "unknown"`. Otherwise skip it.
 - Search tip: add freshness words to queries where the site supports them (e.g. "היום", "השבוע", "past week") and prefer board search pages sorted by newest.
-Project folder: `G:\My Drive\builder_projects\job_seeker`
+Project folder: the repo root (`job_seeker`), the same working folder as the lead agent. All paths are relative to it.
 
 ## Steps
 1. Read `seen_jobs.json` and skip any URL already listed.

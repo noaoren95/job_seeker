@@ -17,7 +17,8 @@ LEAD AGENT (agent_prompt.md)
   ├─ merge, remove duplicates, skip seen jobs, keep only jobs from the last N days
   ├─ CV-fit gate: every must-have needs a matching CV line (+ seniority, degree, location, role fit)
   ├─ score 0–10, recommend ≥ 7
-  └─ HTML email via the Gmail connector (Apply button per job) → update seen_jobs.json
+  ├─ HTML email via the Gmail connector (Apply button per job) → update seen jobs
+  └─ progress log + checkpoints (runs/<date>/) → watchdog alerts if the email didn't go out
 ```
 The CV is read only by the lead agent. It is never sent to subagents or put in search queries.
 
@@ -68,6 +69,36 @@ No API keys, Python or other installs are needed. Claude is the LLM, and everyth
 
 `seen_jobs.json`, `rejected_log.md` and `runs/` are created automatically on the first run, and git ignores them.
 
+## Cloud schedule (Claude routines)
+A local scheduled task only runs while your computer and the Claude app are open. To run every workday even when they're closed, use two **Claude routines** (cloud sessions on a schedule) instead:
+
+| Routine | When (cron is UTC) | What it does |
+|---|---|---|
+| `job-seeker-daily` | `0 6 * * 0-4`: 08:00 Israel winter time, 09:00 in summer | The daily search + email, in cloud mode |
+| `job-seeker-watchdog` | `0 7 * * 0-4`: 09:00 Israel winter time | Checks the email went out; if not, alerts you and retries once (`watchdog_prompt.md`) |
+
+How cloud mode works:
+- Each run starts from a fresh clone of this repo, so it has the prompts and `keywords.md`, but **not** your private files.
+- Your private files stay in **Google Drive**, in the project folder: `cv.md`, `seen_jobs.json`, `state/seen/`, `runs/`, `logs/`. The run reads and writes them through the **Google Drive connector** and sends the email through the **Gmail connector**. Both must be connected at claude.ai → Settings → Connectors.
+- The Drive connector can only create files, not overwrite them, so each cloud run writes its seen jobs to a new `state/seen/<date>.json`. The agent combines these with `seen_jobs.json`.
+- The routine prompts (not this repo) hold your email address and the Drive folder IDs.
+- Prompt changes only reach the cloud once they're **pushed to GitHub**.
+- After the cloud routine is working, disable the local scheduled task so the search doesn't run twice.
+- Cron is in UTC: update it when daylight saving time changes, if you want exactly 08:00.
+
+Manage routines at claude.ai/code/routines, or ask Claude ("run the job-seeker-daily routine now", "show the last run's log").
+
+## Logging & alerts
+Every run (local or cloud) leaves a trail you can check:
+| Where | What |
+|---|---|
+| `runs/<date>/progress/` | Checkpoints: `01_started` → `02_boards_done` → `03_scored` → `04_email_sent` or `04_failed`. The last file shows how far a run got. `r_` = retry, `watchdog_<HHMM>` = the watchdog's verdict |
+| `runs/<date>/run_log.jsonl` | One line per event (start, each board, merge, gate, email, finish, errors), with timestamps |
+| `logs/history/<date>.md` | One summary line per run: start/end time, checked, sent, email ✓/✗, attempt |
+| Your inbox | `⚠ Job seeker: run …` alert from the watchdog when the daily email didn't go out |
+
+The cloud routine's full session log is also on its page at claude.ai/code/routines.
+
 ## Files
 | File | What it is | In git? |
 |---|---|---|
@@ -83,7 +114,10 @@ No API keys, Python or other installs are needed. Claude is the LLM, and everyth
 | `templates/email_template.html` | Reference layout for the daily email | Yes |
 | `seen_jobs.json` | Jobs already handled (prevents repeats) | **No** (ignored) |
 | `rejected_log.md` | Last run's rejected jobs + reasons | **No** (ignored) |
-| `runs/<date>/` | Each run's board results, results.md, email.html | **No** (ignored) |
+| `runs/<date>/` | Each run's board results, results.md, email.html, run_log.jsonl, progress/ | **No** (ignored) |
+| `watchdog_prompt.md` | The watchdog routine: check the email went out, alert, retry once | Yes |
+| `state/seen/<date>.json` | Jobs handled by each cloud run (added to seen_jobs.json) | **No** (ignored) |
+| `logs/history/` | One summary line per run | **No** (ignored) |
 
 ## Common changes
 - **Add/remove keywords:** edit `keywords.md` (put `~` before a term to turn it off, or move it to `## Removed`), or tell Claude "add X to core" / "disable Y".
