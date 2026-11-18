@@ -50,6 +50,12 @@ Keep a progress log so a stopped or failed run can be diagnosed.
 
 📍 Write `01_started.json` and log `start` before doing anything else.
 
+## 0c. Already done today? (check right after `start`)
+One email per day. Before searching, check Gmail (`search_threads`) for a message sent today with the subject `Daily job matches – <D Mon YYYY>`. Also accept a plain hyphen instead of the en dash.
+- **Found:** don't search and don't send anything. Log `{"event":"skipped","reason":"already_sent","gmail_id":...}` and write the checkpoint `01_skipped_already_sent.json` (with the Gmail id and the time it was sent). Then finish with a one-line summary. This is a success, not a failure.
+- **Not found:** continue with step 1. If board files from an earlier attempt today exist, reuse them (see section 0).
+- **Exception:** if the user explicitly asks to run again anyway (e.g. "force a new run"), continue, and add ` – rerun` to the email subject.
+
 ## 1. Build queries for each board
 For each board, build 3–4 queries from enabled terms:
 - Pair 2–3 **Core ATS** terms (including `[core]` additions), sometimes adding one **CV strength** or one **Title**. Never search a title alone.
