@@ -7,7 +7,7 @@ Architecture:
 main agent (this file)
   ├─ reads keywords.md, builds queries for each board
   ├─ spawns one board subagent per job board IN PARALLEL  (subagent_board_prompt.md)
-  │     linkedin · alljobs · drushim · jobmaster · career_pages
+  │     linkedin · indeed · alljobs · drushim · jobmaster · career_pages
   │     each: search → fetch postings → extract requirements → runs/<date>/<board>.json
   ├─ merges + dedupes candidates
   ├─ CV-fit gate + scoring (here only, so every job is judged the same way)
@@ -60,13 +60,13 @@ One email per day. Before searching, check Gmail (`search_threads`) for a messag
 For each board, build 3–4 queries from enabled terms:
 - Pair 2–3 **Core ATS** terms (including `[core]` additions), sometimes adding one **CV strength** or one **Title**. Never search a title alone.
 - Rotate combinations from day to day (based on the date) so coverage grows.
-- Hebrew boards (AllJobs, Drushim, JobMaster) get at least one Hebrew query (e.g. `AI אוטומציה אינטגרציות`, `מיישם AI`, `סוכני AI`).
+- Hebrew boards (AllJobs, Drushim, JobMaster) get at least one Hebrew query; Indeed gets a mix (one Hebrew, the rest English) (e.g. `AI אוטומציה אינטגרציות`, `מיישם AI`, `סוכני AI`).
 
 ## 2. Spawn board subagents (parallel, one message)
 Read `Max job age (days)` and `Unknown posting date` from the **Filters** section of `keywords.md` (defaults if missing: 7 and `exclude`).
-Spawn 5 subagents, one per board, in a single message so they run at the same time. Each prompt =
+Spawn 6 subagents, one per board, in a single message so they run at the same time. Each prompt =
 the contents of `subagent_board_prompt.md` + the board name + its queries + the Exclude terms + today's date + `max_age_days` + `unknown_date`.
-Boards: `linkedin`, `alljobs`, `drushim`, `jobmaster`, `career_pages`.
+Boards: `linkedin`, `indeed`, `alljobs`, `drushim`, `jobmaster`, `career_pages`.
 Before spawning, write the combined seen list into `seen_jobs.json` in the working folder so the subagents skip those URLs (in a cloud run this local copy is never uploaded back).
 As each subagent returns, log `board_done` (or `board_failed` if it errored or `runs/<date>/<board>.json` is missing). 📍 When all are back: `02_boards_done.json` with the per-board counts.
 
@@ -99,14 +99,14 @@ Log `merged` and `gated`. 📍 `03_scored.json` with the counts.
   - **Cloud run:** write them to `state/seen/<date>.json` as `{"seen": [...]}` (same entry format as `seen_jobs.json`), and upload it to Drive `state/seen/`. For a retry, use `<date>_retry.json`.
 - Write `rejected_log.md` with this run's rejected/low-score jobs: title, company, URL, one-line reason. Local: overwrite it. Cloud: upload it as `runs/<date>/rejected_log.md`.
 - Save a copy of the email HTML to `runs/<date>/email.html` and a summary to `runs/<date>/results.md`.
-- **Cloud run push:** upload to Drive `runs/<date>/`: `results.md`, `email.html`, `rejected_log.md`, `run_log.jsonl` and the five `<board>.json` files (skip ones already there). Then write the history line (see 0b). Log `finish` before uploading `run_log.jsonl`.
+- **Cloud run push:** upload to Drive `runs/<date>/`: `results.md`, `email.html`, `rejected_log.md`, `run_log.jsonl` and the six `<board>.json` files (skip ones already there). Then write the history line (see 0b). Log `finish` before uploading `run_log.jsonl`.
 
 ## 7. Email
 Send with the Gmail connector `send_message` to the user's own address (the account the Gmail connector is signed in to), using `htmlBody` + a plain-text `body` fallback.
 - **Subject:** `Daily job matches – <D Mon YYYY> (<N> new)`
 - **Layout** (inline CSS only; Gmail strips `<style>`): follow `templates/email_template.html` as the reference template.
   1. Header bar: date, N new matches, postings checked, boards searched, number rejected, and the active freshness window ("jobs from the last <max_age_days> days").
-  2. One card per recommended job, best first: score badge (green ≥ 8, blue 7–7.9) + linked title; company · location · source(s) · **posted date (always shown, e.g. "posted 2 days ago · 13 Nov")**; **CV evidence** (2–3 points); **Matched** keywords; **Gaps / Note** (orange); and a **REQUIRED** button at the bottom of each card: `Apply on <apply_via> →` linking to `apply_url`. Button style: `display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px`. For AllJobs / Drushim / JobMaster / LinkedIn add a small grey note after it: "(log in to the board to send your CV)".
+  2. One card per recommended job, best first: score badge (green ≥ 8, blue 7–7.9) + linked title; company · location · source(s) · **posted date (always shown, e.g. "posted 2 days ago · 13 Nov")**; **CV evidence** (2–3 points); **Matched** keywords; **Gaps / Note** (orange); and a **REQUIRED** button at the bottom of each card: `Apply on <apply_via> →` linking to `apply_url`. Button style: `display:inline-block;background:#1e3a5f;color:#ffffff;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:13px`. For AllJobs / Drushim / JobMaster / LinkedIn / Indeed add a small grey note after it: "(log in to the board to send your CV)".
   - Before sending, check that every card has an Apply button and that no `apply_url` points to jobify360 or another mirror. If a job has no valid `apply_url`, fix it (see the table in `subagent_board_prompt.md`) or leave the job out.
   3. Footer: top 3 rejection reasons with counts, a pointer to `rejected_log.md`, and a reminder that keywords are edited in `keywords.md`.
 - **No new matches:** send a short email with subject `Daily job matches – <date> (0 new)` and the footer line (postings checked, top rejection reasons).

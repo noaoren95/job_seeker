@@ -27,6 +27,7 @@ Project folder: the repo root (`job_seeker`), the same working folder as the lea
 - **alljobs**: `site:alljobs.co.il` search works. Direct fetches of `alljobs.co.il/m/p/jobs/<id>` always return 410, so fetch the jobify360.co.il mirror (`/jobs/<id>-aj` or `-vip`). The mirror has no posted date. Hebrew queries work best.
 - **drushim**: `site:drushim.co.il` search works. Most direct fetches return 410, so fetch the jobify360.co.il `-dr` mirror. Remove duplicate job IDs (the same ad is often reposted).
 - **jobmaster**: `site:` search returns nothing for jobmaster. Use JobMaster's own search page with the Hebrew/English terms instead (only page 1 is readable; later pages need a login). Postings are at `jobmaster.co.il/jobs/checknum.asp?key=<id>` and show "X days ago".
+- **indeed**: il.indeed.com blocks direct fetches (search pages return 403, `viewjob` returns 401), and `site:il.indeed.com` returns little. Search `"<terms>" Israel indeed` and use the jobify360.co.il `-id` mirror (`/jobs/<jk>-id`, where `<jk>` is Indeed's 16-hex-character job key) for the full text. The mirror has no posted date: take it from the search snippet ("לפני X ימים", "X days ago"), or from the employer's own careers/ATS page when the same ad is there. Ignore the mirror's salary figure (it is an AI estimate, not the employer's). Many Indeed ads are re-posts from company career pages; if you find the original, prefer it.
 - **career_pages**: company career sites and ATS/VC job boards: jobs.workable.com, Greenhouse (use the public API `boards-api.greenhouse.io/v1/boards/<company>/jobs` when board pages only show lists), jobs.lever.co, smartrecruiters, jobs.tlv.partners, careers.grovevc.com, jobs.detroit.vc, company `/careers` pages. `site:comeet.com` returned nothing useful. Add `Israel` to queries.
 
 ## Output (JSON array)
@@ -60,6 +61,7 @@ Project folder: the repo root (`job_seeker`), the same working folder as the lea
 | Drushim (incl. jobify360 `-dr`) | the original `https://www.drushim.co.il/job/<id>/<hash>/` URL (find it via search if only the mirror is known) | `Drushim` |
 | JobMaster | `https://www.jobmaster.co.il/jobs/checknum.asp?key=<id>` | `JobMaster` |
 | LinkedIn (incl. jobify360 `-in`) | `https://www.linkedin.com/jobs/view/<id>`. If the LinkedIn page shows an external "Apply" link, use that company link instead | `LinkedIn` or the company/ATS name |
+| Indeed (incl. jobify360 `-id`) | `https://il.indeed.com/viewjob?jk=<jk>`. If the ad is a re-post of a company career page / ATS posting, use that apply link instead | `Indeed` or the company/ATS name |
 | Workable | `https://jobs.workable.com/view/<id>` (the "Apply for this job" target) | `Workable` |
 | Greenhouse / Lever / Comeet / SmartRecruiters / company careers | the posting's apply button target (e.g. Greenhouse `.../jobs/<id>#app`, Lever `.../<id>/apply`) | ATS or company name |
 jobify360 pages are mirrors: their "Upload CV" applies through jobify360, not to the employer, so never use them as `apply_url`.

@@ -11,8 +11,8 @@ CV ─────────────► extractor ─► cv_profile ─┴
                                                              ▼
 LEAD AGENT (agent_prompt.md)
   ├─ builds queries for each board from keywords.md
-  ├─ 5 board subagents in parallel (subagent_board_prompt.md)
-  │    linkedin · alljobs · drushim · jobmaster · career_pages
+  ├─ 6 board subagents in parallel (subagent_board_prompt.md)
+  │    linkedin · indeed · alljobs · drushim · jobmaster · career_pages
   │    search → open postings → requirements, posted date, apply link
   ├─ merge, remove duplicates, skip seen jobs, keep only jobs from the last N days
   ├─ CV-fit gate: every must-have needs a matching CV line (+ seniority, degree, location, role fit)
