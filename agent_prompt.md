@@ -25,7 +25,7 @@ Privacy: no name, email, phone or LinkedIn URL from the CV goes into any query, 
 ## 0. Storage: local run or cloud run
 - **Local run** (`cv.md` exists in the project folder): read and write files directly, as described below.
 - **Cloud run** (`cv.md` is missing: this is a fresh clone in a cloud routine): the private files live in Google Drive. Follow the **Drive** steps in the routine prompt:
-  1. **Pull** before step 1: download `cv.md`, `seen_jobs.json` and all `state/seen/*.json` from Drive into the same paths here. Also download any board files already in Drive under `runs/<date>/` (from an earlier attempt today), and don't search those boards again.
+  1. **Pull** before step 1: download `cv.md`, `seen_jobs.json` and all `state/seen/*.json` from Drive into the same paths here. Also download any board files already in Drive under `runs/<date>/` (from an earlier attempt today), and don't search those boards again, unless the earlier `run_log.jsonl` logged that board as `board_failed` (then search it again).
   2. **Checkpoint** at each stage marked 📍 below: create a small JSON file in Drive `runs/<date>/progress/`.
   3. **Push** at the end: upload the outputs listed in step 6.
   - Drive can only **create** files, not overwrite them. Never try to update a Drive file's content. Always create a new file, and use `disableConversionToGoogleType: true` with `text/plain`, `application/json` or `text/html` so it stays a normal file.
@@ -52,6 +52,7 @@ Keep a progress log so a stopped or failed run can be diagnosed.
 
 ## 0c. Already done today? (check right after `start`)
 One email per day. Before searching, check Gmail (`search_threads`) for a message sent today with the subject `Daily job matches – <D Mon YYYY>`. Also accept a plain hyphen instead of the en dash.
+- **A blocked day doesn't count:** ignore the email found if its subject contains `network blocked`, or if today's `runs/<date>/run_log.jsonl` (Drive, in a cloud run) shows `board_failed` for every board. That run never really searched, so carry on as **Not found**, and add ` – rerun` to the subject. Don't reuse board files from that attempt: re-search every board whose earlier result was `board_failed`.
 - **Found:** don't search and don't send anything. Log `{"event":"skipped","reason":"already_sent","gmail_id":...}` and write the checkpoint `01_skipped_already_sent.json` (with the Gmail id and the time it was sent). Then finish with a one-line summary. This is a success, not a failure.
 - **Not found:** continue with step 1. If board files from an earlier attempt today exist, reuse them (see section 0).
 - **Exception:** if the user explicitly asks to run again anyway (e.g. "force a new run"), continue, and add ` – rerun` to the email subject.
