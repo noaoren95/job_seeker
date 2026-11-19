@@ -56,6 +56,18 @@ One email per day. Before searching, check Gmail (`search_threads`) for a messag
 - **Not found:** continue with step 1. If board files from an earlier attempt today exist, reuse them (see section 0).
 - **Exception:** if the user explicitly asks to run again anyway (e.g. "force a new run"), continue, and add ` – rerun` to the email subject.
 
+## 0d. Network check (cloud runs only, right after 0c)
+A cloud routine runs behind a proxy that only lets through the domains allowed in its environment's network settings. A blocked host shows up as `curl: (56) CONNECT tunnel failed, response 403` or as WebFetch `getaddrinfo ENOTFOUND`. Check this once, before spawning anything:
+```bash
+for h in www.linkedin.com il.indeed.com www.alljobs.co.il www.drushim.co.il www.jobmaster.co.il jobify360.co.il boards-api.greenhouse.io jobs.lever.co jobs.workable.com; do
+  c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://$h/"); echo "$h $c"
+done
+```
+A host is **blocked** when the code is `000` (no response). Any HTTP code (200, 301, 404, 410, even a 403 from the site itself) means it is reachable.
+- Log `{"event":"network_check","blocked":[...],"reachable":[...]}`.
+- **Every host blocked:** don't spawn the board subagents. Send the email right away with the subject `Daily job matches – <D Mon YYYY> (0 new) ⚠ network blocked`, saying no board could be reached and listing the blocked hosts, plus this fix: *claude.ai/code → the routine's cloud environment → Network access → Full (or Custom with the domains in README "Cloud network access")*. Then log `finish` `ok:false`, write 📍 `04_failed.json` with `step: "network_check"`, and do the Drive push and history line as usual (history note: `network blocked`).
+- **Some hosts blocked:** carry on, but give each subagent the blocked list so it doesn't retry those hosts, and name them in the email header.
+
 ## 1. Build queries for each board
 For each board, build 3–4 queries from enabled terms:
 - Pair 2–3 **Core ATS** terms (including `[core]` additions), sometimes adding one **CV strength** or one **Title**. Never search a title alone.
@@ -65,7 +77,7 @@ For each board, build 3–4 queries from enabled terms:
 ## 2. Spawn board subagents (parallel, one message)
 Read `Max job age (days)` and `Unknown posting date` from the **Filters** section of `keywords.md` (defaults if missing: 7 and `exclude`).
 Spawn 6 subagents, one per board, in a single message so they run at the same time. Each prompt =
-the contents of `subagent_board_prompt.md` + the board name + its queries + the Exclude terms + today's date + `max_age_days` + `unknown_date`.
+the contents of `subagent_board_prompt.md` + the board name + its queries + the Exclude terms + today's date + `max_age_days` + `unknown_date` + (cloud runs) the blocked hosts from 0d, which the subagent must not fetch.
 Boards: `linkedin`, `indeed`, `alljobs`, `drushim`, `jobmaster`, `career_pages`.
 Before spawning, write the combined seen list into `seen_jobs.json` in the working folder so the subagents skip those URLs (in a cloud run this local copy is never uploaded back).
 As each subagent returns, log `board_done` (or `board_failed` if it errored or `runs/<date>/<board>.json` is missing). 📍 When all are back: `02_boards_done.json` with the per-board counts.

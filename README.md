@@ -86,6 +86,13 @@ How cloud mode works:
 - After the cloud routine is working, disable the local scheduled task so the search doesn't run twice.
 - Cron is in UTC: update it when daylight saving time changes, if you want exactly 08:00.
 
+### Cloud network access (required)
+Cloud environments start with **limited** network access, so the job boards are blocked (`CONNECT tunnel failed, response 403` / `getaddrinfo ENOTFOUND`) and every board comes back empty. Web search still works, but no posting page can be opened. To fix it, go to claude.ai/code, open the cloud environment the routines use, and under **Network access** choose:
+- **Full**: simplest, since the career-pages board visits company sites that change every day, or
+- **Custom**, allowing at least: `linkedin.com`, `il.linkedin.com`, `il.indeed.com`, `alljobs.co.il`, `drushim.co.il`, `jobmaster.co.il`, `jobify360.co.il` (the mirror the boards' full text comes from), `boards-api.greenhouse.io`, `job-boards.greenhouse.io`, `job-boards.eu.greenhouse.io`, `jobs.lever.co`, `jobs.workable.com`, `apply.workable.com`, `smartrecruiters.com`, `builtin.com`, `jobs.tlv.partners`, `careers.grovevc.com`, `jobs.detroit.vc`.
+
+Each cloud run checks the network first (`agent_prompt.md` section 0d). If every board is blocked, it skips the search and sends an email marked "⚠ network blocked".
+
 Manage routines at claude.ai/code/routines, or ask Claude ("run the job-seeker-daily routine now", "show the last run's log").
 
 ## Logging & alerts
