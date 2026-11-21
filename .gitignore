@@ -9,7 +9,6 @@ profiles/cv_profile.md
 runs/
 seen_jobs.json
 rejected_log.md
-state/
 logs/
 
 # --- Local tool settings ---
