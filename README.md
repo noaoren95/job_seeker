@@ -69,6 +69,27 @@ No API keys, Python or other installs are needed. Claude is the LLM, and everyth
 
 `seen_jobs.json`, `rejected_log.md` and `runs/` are created automatically on the first run, and git ignores them.
 
+## Cloud schedule (Claude routine)
+A local scheduled task only runs while your computer and the Claude app are open. To run even when they're closed, use a **Claude routine** (a cloud session on a schedule) instead, for example `job-seeker-daily` with cron `0 7 * * *` (UTC): 09:00 Israel winter time, 10:00 in summer.
+
+How cloud mode works:
+- Each run starts from a fresh clone of this repo, so it has the prompts and `keywords.md`, but **not** your private files.
+- Your private files stay in **Google Drive**, in the project folder: `cv.md`, `seen_jobs.json`, `state/seen/`, `runs/`, `logs/`. The run reads and writes them through the **Google Drive connector** and sends the email through the **Gmail connector**. Both must be connected at claude.ai → Settings → Connectors.
+- The Drive connector can only create files, not overwrite them, so each cloud run writes its seen jobs to a new `state/seen/<date>.json`. The agent (local or cloud) combines these with `seen_jobs.json`.
+- The routine prompt (not this repo) holds your email address and the Drive folder IDs.
+- Prompt changes only reach the cloud once they're **pushed to GitHub**.
+- After the cloud routine is working, disable the local scheduled task. (If both run, the "already sent today" check stops a second email.)
+- Cron is in UTC: update it when daylight saving time changes, if you want an exact local time.
+
+### Cloud network access (required)
+Cloud environments start with **limited** network access, so the job boards are blocked (`CONNECT tunnel failed, response 403` / `getaddrinfo ENOTFOUND`) and every board comes back empty. To fix it, go to claude.ai/code, open the cloud environment the routine uses, and under **Network access** choose:
+- **Full**: simplest, since the career-pages board visits company sites that change every day, or
+- **Custom**, allowing at least: `linkedin.com`, `il.linkedin.com`, `il.indeed.com`, `alljobs.co.il`, `drushim.co.il`, `jobmaster.co.il`, `jobify360.co.il` (the mirror the boards' full text comes from), `boards-api.greenhouse.io`, `job-boards.greenhouse.io`, `job-boards.eu.greenhouse.io`, `jobs.lever.co`, `jobs.workable.com`, `apply.workable.com`, `smartrecruiters.com`, `builtin.com`, `jobs.tlv.partners`, `careers.grovevc.com`, `jobs.detroit.vc`.
+
+Each cloud run checks the network first (`agent_prompt.md` section 0d). If every board is blocked, it skips the search and sends an email marked "⚠ network blocked".
+
+Manage routines at claude.ai/code/routines, or ask Claude ("run the job-seeker-daily routine now", "show the last run's log").
+
 ## Logging
 Every run leaves a trail you can check:
 | Where | What |
@@ -77,7 +98,7 @@ Every run leaves a trail you can check:
 | `runs/<date>/run_log.jsonl` | One line per event (start, each board, merge, gate, email, finish, errors), with timestamps |
 | `logs/history/<date>.md` | One summary line per run: start/end time, checked, sent, email ✓/✗, attempt |
 
-Each scheduled run's full session is also listed under **Scheduled** in the Claude app's sidebar.
+Each local scheduled run's full session is also listed under **Scheduled** in the Claude app's sidebar; a cloud routine's runs are on its page at claude.ai/code/routines.
 
 ## Files
 | File | What it is | In git? |
@@ -95,6 +116,7 @@ Each scheduled run's full session is also listed under **Scheduled** in the Clau
 | `seen_jobs.json` | Jobs already handled (prevents repeats) | **No** (ignored) |
 | `rejected_log.md` | Last run's rejected jobs + reasons | **No** (ignored) |
 | `runs/<date>/` | Each run's board results, results.md, email.html, run_log.jsonl, progress/ | **No** (ignored) |
+| `state/seen/<date>.json` | Jobs handled by each cloud run (added to the seen list) | **No** (ignored) |
 | `logs/history/` | One summary line per run | **No** (ignored) |
 
 ## Common changes
